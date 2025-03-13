@@ -12,12 +12,10 @@
 #define AppUrl "https://github.com/equinor/AzureKeyVaultExplorer"
 
 #ifndef VERSION
-#define VERSION GetEnv('APPVEYOR_BUILD_VERSION')
-#if VERSION == ""
-  #define VERSION = "0.0.0.0"
+  #define VERSION "0.0.0.0"
 #endif
+
 #pragma message "Detected Version: " + VERSION
-#endif
 
 [Setup]
 ArchitecturesInstallIn64BitMode    = x64compatible
@@ -58,17 +56,19 @@ Name: "norwegian"; MessagesFile: "compiler:Languages\Norwegian.isl"
 
 [Files]
 Source: "VaultExplorer.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "VaultExplorer.exe.config"; DestDir: "{app}"; Flags: ignoreversion
 Source: "ClearClipboard.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "ClearClipboard.exe.config"; DestDir: "{app}"; Flags: ignoreversion
 Source: "Microsoft.ApplicationInsights.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "Microsoft.Azure.KeyVault.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "Microsoft.Azure.KeyVault.WebKey.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "Microsoft.Azure.Management.KeyVault.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "Microsoft.IdentityModel.Clients.ActiveDirectory.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "Microsoft.IdentityModel.Clients.ActiveDirectory.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "Microsoft.Rest.ClientRuntime.Azure.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "Microsoft.Rest.ClientRuntime.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "Microsoft.Vault.Core.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "Microsoft.Vault.Library.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "Microsoft.Vault.Library.dll.config"; DestDir: "{app}"; Flags: ignoreversion
 Source: "Newtonsoft.Json.Bson.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "Newtonsoft.Json.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "ScintillaNET.dll"; DestDir: "{app}"; Flags: ignoreversion

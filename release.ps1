@@ -60,42 +60,55 @@ try {
     Pop-Location
 }
 
+try {
+    Write-Output 'Building installer...'
+    Write-Output "Version: $version"
+    Start-Process -Wait -FilePath iscc -ArgumentList "Installer\installer.iss", "/DVERSION=$version"
+    
+    # Measure installer size.
+    # $publishSize = (Get-ChildItem -Path "$projDir/Installer" -Recurse |
+    #         Measure-Object -Property Length -Sum).Sum / 1Mb
+    # Write-Output ('Final installer size: {0:N2} MB' -f $publishSize)
+} finally {
+    Pop-Location
+}
+
 if ($OnlyBuild) {
     Write-Output 'Build finished.'
     exit
 }
 
-# Clone `gh-pages` branch.
-$ghPagesDir = 'gh-pages'
-if (-Not (Test-Path $ghPagesDir)) {
-    git clone $(git config --get remote.origin.url) -b gh-pages `
-        --depth 1 --single-branch $ghPagesDir
-}
+# # Clone `gh-pages` branch.
+# $ghPagesDir = 'gh-pages'
+# if (-Not (Test-Path $ghPagesDir)) {
+#     git clone $(git config --get remote.origin.url) -b gh-pages `
+#         --depth 1 --single-branch $ghPagesDir
+# }
 
-Push-Location $ghPagesDir
-try {
-    # Remove previous application files.
-    Write-Output 'Removing previous files...'
-    if (Test-Path 'Application Files') {
-        Remove-Item -Path 'Application Files' -Recurse
-    }
-    if (Test-Path "$appName.application") {
-        Remove-Item -Path "$appName.application"
-    }
+# Push-Location $ghPagesDir
+# try {
+#     # Remove previous application files.
+#     Write-Output 'Removing previous files...'
+#     if (Test-Path 'Application Files') {
+#         Remove-Item -Path 'Application Files' -Recurse
+#     }
+#     if (Test-Path "$appName.application") {
+#         Remove-Item -Path "$appName.application"
+#     }
 
-    # Copy new application files.
-    Write-Output 'Copying new files...'
-    Copy-Item -Path "../$outDir/Application Files", "../$outDir/$appName.application" `
-        -Destination . -Recurse
+#     # Copy new application files.
+#     Write-Output 'Copying new files...'
+#     Copy-Item -Path "../$outDir/Application Files", "../$outDir/$appName.application" `
+#         -Destination . -Recurse
 
-    # Stage and commit.
-    Write-Output 'Staging...'
-    git add -A
-    Write-Output 'Committing...'
-    git commit -m "update to v$version"
+#     # Stage and commit.
+#     Write-Output 'Staging...'
+#     git add -A
+#     Write-Output 'Committing...'
+#     git commit -m "update to v$version"
 
-    # Push.
-    git push
-} finally {
-    Pop-Location
-}
+#     # Push.
+#     git push
+# } finally {
+#     Pop-Location
+# }
