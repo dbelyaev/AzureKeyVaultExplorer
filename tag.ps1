@@ -1,6 +1,10 @@
-$gitOutput = $(git log -1 --pretty=format:"%h;%cd" --date=iso)
+# Get the latest commit ID and date in ISO format.
+$gitOutput = git log -1 --pretty=format:"%h;%cd" --date=iso
 $commitIdDate = $gitOutput.Split(';')
-$shortCommitId = $gitOutput[0]
 $commitDateUTC = [datetime]::Parse($commitIdDate[1]).ToUniversalTime()
+
+# Generate the version string based on the commit date.
 $versionString = $commitDateUTC.ToString("vyyyy.MMdd.HHmm.ss")
+
+# Create a new git tag with the generated version string.
 git tag $versionString

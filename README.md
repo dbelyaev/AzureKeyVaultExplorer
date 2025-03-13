@@ -1,40 +1,44 @@
 # ![bigKey](./Screenshots/Key64x64.png) Azure Key Vault Explorer
 
-**NOTE: This is a fork of the original project located at [https://github.com/microsoft/AzureKeyVaultExplorer](https://github.com/microsoft/AzureKeyVaultExplorer). This fork is not maintained by, or affiliated with, Microsoft, and was created to allow for continued development of the tool by the community.**
+> [!IMPORTANT]  
+> This is a fork of the original project located at [https://github.com/microsoft/AzureKeyVaultExplorer](https://github.com/microsoft/AzureKeyVaultExplorer).
+> This fork is not maintained by, or affiliated with, Microsoft.
+> This software is provided as is, you can use it at your own risk.
 
-Azure Key Vault Explorer - be productive when working with secrets!
+**Azure Key Vault Explorer** - be productive when working with secrets!
 
 Original authors: Eli Zeitlin, Gokhan Ozhan, Anna Zeitlin  
 Contact: Submit issues/PRs on this repo
 
 ## Table of Contents
 
-* [Key features](#key-features)
-* [How to add or open new vaults](#how-to-add-or-open-new-vaults)
-* [Keyboard and mouse shortcuts](#keyboard-and-mouse-shortcuts)
-* [Configuration](#configuration)
-  * [Vaults.json](#vaultsjson)
-  * [SecretKinds.json](#secretkindsjson)
-  * [CustomTags.json](#customtagsjson)
-  * [VaultAliases.json](#vaultaliasesjson)
-  * [User.config](#userconfig)
-* [Telemetry](#telemetry)
-* [Screen shots](#screen-shots)
-  * [Main window](#main-window)
-  * [Search and copy secret to clipboard](#search-and-copy-secret-to-clipboard)
-  * [Edit secret](#edit-secret)
-  * [Rollback to specific secret version](#rollback-to-specific-secret-version)
-  * [Edit secret tags](#edit-secret-tags)
-  * [Edit Key Vault certificate](#edit-key-vault-certificate)
-  * [Settings window](#settings-window)
-* [Contributing](#contributing)
-  * [TODOs](#todos)
+- [ Azure Key Vault Explorer](#-azure-key-vault-explorer)
+  - [Table of Contents](#table-of-contents)
+  - [Key features](#key-features)
+  - [How to add or open new vaults](#how-to-add-or-open-new-vaults)
+  - [Keyboard and mouse shortcuts](#keyboard-and-mouse-shortcuts)
+  - [Configuration](#configuration)
+    - [Vaults.json](#vaultsjson)
+    - [VaultAliases.json](#vaultaliasesjson)
+    - [SecretKinds.json](#secretkindsjson)
+    - [CustomTags.json](#customtagsjson)
+    - [User.config](#userconfig)
+  - [Telemetry](#telemetry)
+  - [Screen shots](#screen-shots)
+    - [Main window](#main-window)
+    - [Search and copy secret to clipboard](#search-and-copy-secret-to-clipboard)
+    - [Edit secret](#edit-secret)
+    - [Rollback to specific secret version](#rollback-to-specific-secret-version)
+    - [Edit secret tags](#edit-secret-tags)
+    - [Edit Key Vault certificate](#edit-key-vault-certificate)
+    - [Settings window](#settings-window)
+  - [Contributing](#contributing)
+    - [TODOs](#todos)
 
 ## Key features
 
 * Best user experience for authentication, you will be prompted at most *once* to enter your credentials
 * All types of authentications are supported: Certificate, Secret and User based with 2FA (including PHX or GME)
-* One click activation, just run this: `https://srnk.cc/ve?vault://[ENTER HERE YOUR VAULT NAME]`
 * Support single or dual vaults
 * Upload and download certificate (.pfx, .p12 and .cer) files
 * Import and export certificates to user or machine stores in just few clicks
@@ -65,11 +69,10 @@ Contact: Submit issues/PRs on this repo
 
 There are 4 ways how you can make Vault Explorer to work with your vaults:
 
-1. In case Vault Explorer is not installed on the box, you may just run: `https://srnk.cc/ve?vault://[ENTER HERE YOUR VAULT NAME]`
-2. In case Vault Explorer already installed on the box, you can just hit Win+R type `vault://[ENTER HERE YOUR VAULT NAME]` and hit Enter
+1. In case Vault Explorer already installed on the box, you can just hit Win+R type `vault://[ENTER HERE YOUR VAULT NAME]` and hit Enter
     * Note: The above two methods do **NOT** allow for alternative account login  
-3. Run Vault Explorer, open vault combo box, select last item "Pick vault from subscription..."  
-4. Below is *the recommended way*, as it gives you a full control around vaults, aliases, access and secret kinds.  
+1. Run Vault Explorer, open vault combo box, select last item "Pick vault from subscription..."  
+1. Below is *the recommended way*, as it gives you a full control around vaults, aliases, access and secret kinds.  
 Just complete the below fairly easy manual steps *once*:
 
 * Run Vault Explorer
@@ -92,7 +95,6 @@ Just complete the below fairly easy manual steps *once*:
 * Enter - edit item
 * Ctrl + A - select all items
 * Ctrl + C - copy item value to clipboard for some time (configurable)
-* Ctrl + Shift + C - copy link to the selected item in the following format: `https://srnk.cc/ve?vault://vaultName/collection/itemName/version`
 * Ctrl + D - add item to favorites / remove item from favorites
 * Ctrl + E - edit item
 * Ctrl + F - find items
