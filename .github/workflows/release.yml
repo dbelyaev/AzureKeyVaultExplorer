@@ -22,3 +22,9 @@ jobs:
       - name: Run release script
         shell: PowerShell
         run: ./release.ps1
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer
+          path: Vault/Explorer/bin/installer/output/*.exe
