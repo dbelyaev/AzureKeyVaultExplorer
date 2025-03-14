@@ -310,5 +310,384 @@ namespace Microsoft.Vault.Library
         }
 
         #endregion
+
+        #region Keys
+
+        /// <summary>
+        /// Gets specified key by name from vault
+        /// This function will prefer vault in the same region, in case we failed (including key not found) it will fallback to other region
+        /// </summary>
+        public async Task<KeyVaultKey> GetKeyAsync(string keyName, string keyVersion = null, CancellationToken cancellationToken = default)
+        {
+            Queue<Exception> exceptions = new Queue<Exception>();
+            string vaults = "";
+
+            foreach (var client in _keyClients)
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(keyVersion))
+                    {
+                        return await client.GetKeyAsync(keyName, cancellationToken: cancellationToken);
+                    }
+                    else
+                    {
+                        return await client.GetKeyVersionAsync(keyName, keyVersion, cancellationToken);
+                    }
+                }
+                catch (Exception e)
+                {
+                    vaults += $" {client.VaultUri}";
+                    exceptions.Enqueue(e);
+                }
+            }
+
+            throw new KeyVaultException($"Failed to get key {keyName} from vault(s){vaults}", exceptions.ToArray());
+        }
+
+        /// <summary>
+        /// Creates a new key in both vaults
+        /// </summary>
+        public async Task<KeyVaultKey> CreateKeyAsync(
+            string keyName,
+            KeyType keyType,
+            KeyCreateOptions options = null,
+            CancellationToken cancellationToken = default)
+        {
+            options ??= new KeyCreateOptions();
+            
+            var t0 = _keyClients[0].CreateKeyAsync(keyName, keyType, options, cancellationToken);
+            var t1 = Secondary ? _keyClients[1].CreateKeyAsync(keyName, keyType, options, cancellationToken) : CompletedTask;
+
+            await Task.WhenAll(t0, t1);
+            return await t0;
+        }
+
+        /// <summary>
+        /// Lists all keys in the vault
+        /// </summary>
+        public async Task<IEnumerable<KeyProperties>> ListKeysAsync(
+            int regionIndex = 0,
+            ListOperationProgressUpdate progressUpdate = null,
+            CancellationToken cancellationToken = default)
+        {
+            if (regionIndex >= _keyClients.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(regionIndex));
+            }
+
+            var results = new List<KeyProperties>();
+            var client = _keyClients[regionIndex];
+            
+            await foreach (var page in client.GetPropertiesOfKeysAsync(cancellationToken))
+            {
+                results.Add(page);
+                progressUpdate?.Invoke(results.Count);
+            }
+
+            return results;
+        }
+
+        /// <summary>
+        /// Gets all versions of a key
+        /// </summary>
+        public async Task<IEnumerable<KeyProperties>> GetKeyVersionsAsync(
+            string keyName,
+            int regionIndex = 0,
+            CancellationToken cancellationToken = default)
+        {
+            if (regionIndex >= _keyClients.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(regionIndex));
+            }
+
+            var results = new List<KeyProperties>();
+            var client = _keyClients[regionIndex];
+
+            await foreach (var version in client.GetPropertiesOfKeyVersionsAsync(keyName, cancellationToken))
+            {
+                results.Add(version);
+            }
+
+            return results;
+        }
+
+        /// <summary>
+        /// Deletes a key from both vaults
+        /// </summary>
+        public async Task<DeletedKey> DeleteKeyAsync(string keyName, CancellationToken cancellationToken = default)
+        {
+            var t0 = _keyClients[0].StartDeleteKeyAsync(keyName, cancellationToken);
+            var t1 = Secondary ? _keyClients[1].StartDeleteKeyAsync(keyName, cancellationToken) : CompletedTask;
+
+            await Task.WhenAll(t0, t1);
+            var operation = await t0;
+            return await operation.WaitForCompletionAsync(cancellationToken);
+        }
+
+        /// <summary>
+        /// Creates a cryptography client for performing cryptographic operations with a key
+        /// </summary>
+        public CryptographyClient GetCryptographyClient(string keyName, string keyVersion = null, int regionIndex = 0)
+        {
+            if (regionIndex >= _keyClients.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(regionIndex));
+            }
+
+            var keyIdentifier = string.IsNullOrEmpty(keyVersion)
+                ? new Uri($"{_keyClients[regionIndex].VaultUri}keys/{keyName}")
+                : new Uri($"{_keyClients[regionIndex].VaultUri}keys/{keyName}/{keyVersion}");
+
+            return new CryptographyClient(keyIdentifier, _credential);
+        }
+
+        /// <summary>
+        /// Updates the properties of a key
+        /// </summary>
+        public async Task<KeyVaultKey> UpdateKeyPropertiesAsync(
+            string keyName,
+            KeyProperties properties,
+            CancellationToken cancellationToken = default)
+        {
+            var t0 = _keyClients[0].UpdateKeyPropertiesAsync(properties, cancellationToken);
+            var t1 = Secondary ? _keyClients[1].UpdateKeyPropertiesAsync(properties, cancellationToken) : CompletedTask;
+
+            await Task.WhenAll(t0, t1);
+            return await t0;
+        }
+
+        /// <summary>
+        /// Backs up a key from the vault
+        /// </summary>
+        public async Task<byte[]> BackupKeyAsync(string keyName, int regionIndex = 0, CancellationToken cancellationToken = default)
+        {
+            if (regionIndex >= _keyClients.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(regionIndex));
+            }
+
+            return await _keyClients[regionIndex].BackupKeyAsync(keyName, cancellationToken);
+        }
+
+        /// <summary>
+        /// Restores a backed up key to the vault
+        /// </summary>
+        public async Task<KeyVaultKey> RestoreKeyAsync(byte[] backup, CancellationToken cancellationToken = default)
+        {
+            var t0 = _keyClients[0].RestoreKeyBackupAsync(backup, cancellationToken);
+            var t1 = Secondary ? _keyClients[1].RestoreKeyBackupAsync(backup, cancellationToken) : CompletedTask;
+
+            await Task.WhenAll(t0, t1);
+            return await t0;
+        }
+
+        #endregion
+
+        #region Certificates
+
+        /// <summary>
+        /// Gets specified certificate by name from vault
+        /// This function will prefer vault in the same region, in case we failed (including certificate not found) it will fallback to other region
+        /// </summary>
+        public async Task<KeyVaultCertificateWithPolicy> GetCertificateAsync(
+            string certificateName,
+            string certificateVersion = null,
+            CancellationToken cancellationToken = default)
+        {
+            Queue<Exception> exceptions = new Queue<Exception>();
+            string vaults = "";
+
+            foreach (var client in _certificateClients)
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(certificateVersion))
+                    {
+                        return await client.GetCertificateAsync(certificateName, cancellationToken);
+                    }
+                    else
+                    {
+                        return await client.GetCertificateVersionAsync(certificateName, certificateVersion, cancellationToken);
+                    }
+                }
+                catch (Exception e)
+                {
+                    vaults += $" {client.VaultUri}";
+                    exceptions.Enqueue(e);
+                }
+            }
+
+            throw new KeyVaultException($"Failed to get certificate {certificateName} from vault(s){vaults}", exceptions.ToArray());
+        }
+
+        /// <summary>
+        /// Creates a new certificate in both vaults
+        /// </summary>
+        public async Task<KeyVaultCertificateOperation> CreateCertificateAsync(
+            string certificateName,
+            CertificatePolicy policy,
+            bool enabled = true,
+            IDictionary<string, string> tags = null,
+            CancellationToken cancellationToken = default)
+        {
+            var options = new CreateCertificateOptions(certificateName, policy)
+            {
+                Enabled = enabled,
+                Tags = tags
+            };
+
+            var t0 = _certificateClients[0].StartCreateCertificateAsync(options, cancellationToken);
+            var t1 = Secondary ? _certificateClients[1].StartCreateCertificateAsync(options, cancellationToken) : CompletedTask;
+
+            await Task.WhenAll(t0, t1);
+            var operation = await t0;
+            return operation.Value;
+        }
+
+        /// <summary>
+        /// Lists all certificates in the vault
+        /// </summary>
+        public async Task<IEnumerable<CertificateProperties>> ListCertificatesAsync(
+            int regionIndex = 0,
+            ListOperationProgressUpdate progressUpdate = null,
+            CancellationToken cancellationToken = default)
+        {
+            if (regionIndex >= _certificateClients.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(regionIndex));
+            }
+
+            var results = new List<CertificateProperties>();
+            var client = _certificateClients[regionIndex];
+            
+            await foreach (var page in client.GetPropertiesOfCertificatesAsync(cancellationToken))
+            {
+                results.Add(page);
+                progressUpdate?.Invoke(results.Count);
+            }
+
+            return results;
+        }
+
+        /// <summary>
+        /// Gets all versions of a certificate
+        /// </summary>
+        public async Task<IEnumerable<CertificateProperties>> GetCertificateVersionsAsync(
+            string certificateName,
+            int regionIndex = 0,
+            CancellationToken cancellationToken = default)
+        {
+            if (regionIndex >= _certificateClients.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(regionIndex));
+            }
+
+            var results = new List<CertificateProperties>();
+            var client = _certificateClients[regionIndex];
+
+            await foreach (var version in client.GetPropertiesOfCertificateVersionsAsync(certificateName, cancellationToken))
+            {
+                results.Add(version);
+            }
+
+            return results;
+        }
+
+        /// <summary>
+        /// Deletes a certificate from both vaults
+        /// </summary>
+        public async Task<DeletedCertificate> DeleteCertificateAsync(string certificateName, CancellationToken cancellationToken = default)
+        {
+            var t0 = _certificateClients[0].StartDeleteCertificateAsync(certificateName, cancellationToken);
+            var t1 = Secondary ? _certificateClients[1].StartDeleteCertificateAsync(certificateName, cancellationToken) : CompletedTask;
+
+            await Task.WhenAll(t0, t1);
+            var operation = await t0;
+            return await operation.WaitForCompletionAsync(cancellationToken);
+        }
+
+        /// <summary>
+        /// Updates the properties of a certificate
+        /// </summary>
+        public async Task<KeyVaultCertificateWithPolicy> UpdateCertificatePropertiesAsync(
+            string certificateName,
+            CertificateProperties properties,
+            CancellationToken cancellationToken = default)
+        {
+            var t0 = _certificateClients[0].UpdateCertificatePropertiesAsync(properties, cancellationToken);
+            var t1 = Secondary ? _certificateClients[1].UpdateCertificatePropertiesAsync(properties, cancellationToken) : CompletedTask;
+
+            await Task.WhenAll(t0, t1);
+            return await t0;
+        }
+
+        /// <summary>
+        /// Merges a certificate with a signed request into both vaults
+        /// </summary>
+        public async Task<KeyVaultCertificateWithPolicy> MergeCertificateAsync(
+            string certificateName,
+            byte[] x509Certificates,
+            CancellationToken cancellationToken = default)
+        {
+            var t0 = _certificateClients[0].MergeCertificateAsync(certificateName, x509Certificates, cancellationToken);
+            var t1 = Secondary ? _certificateClients[1].MergeCertificateAsync(certificateName, x509Certificates, cancellationToken) : CompletedTask;
+
+            await Task.WhenAll(t0, t1);
+            return await t0;
+        }
+
+        /// <summary>
+        /// Imports a certificate into both vaults
+        /// </summary>
+        public async Task<KeyVaultCertificateWithPolicy> ImportCertificateAsync(
+            string certificateName,
+            byte[] certificateBytes,
+            CertificatePolicy policy = null,
+            CancellationToken cancellationToken = default)
+        {
+            var options = new ImportCertificateOptions(certificateName, certificateBytes)
+            {
+                Policy = policy
+            };
+
+            var t0 = _certificateClients[0].ImportCertificateAsync(options, cancellationToken);
+            var t1 = Secondary ? _certificateClients[1].ImportCertificateAsync(options, cancellationToken) : CompletedTask;
+
+            await Task.WhenAll(t0, t1);
+            return await t0;
+        }
+
+        /// <summary>
+        /// Backs up a certificate from the vault
+        /// </summary>
+        public async Task<byte[]> BackupCertificateAsync(
+            string certificateName,
+            int regionIndex = 0,
+            CancellationToken cancellationToken = default)
+        {
+            if (regionIndex >= _certificateClients.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(regionIndex));
+            }
+
+            return await _certificateClients[regionIndex].BackupCertificateAsync(certificateName, cancellationToken);
+        }
+
+        /// <summary>
+        /// Restores a backed up certificate to the vault
+        /// </summary>
+        public async Task<KeyVaultCertificateWithPolicy> RestoreCertificateAsync(
+            byte[] backup,
+            CancellationToken cancellationToken = default)
+        {
+            var t0 = _certificateClients[0].RestoreCertificateBackupAsync(backup, cancellationToken);
+            var t1 = Secondary ? _certificateClients[1].RestoreCertificateBackupAsync(backup, cancellationToken) : CompletedTask;
+
+            await Task.WhenAll(t0, t1);
+            return await t0;
+        }
+
+        #endregion
     }
 } 
