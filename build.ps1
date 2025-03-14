@@ -66,12 +66,14 @@ try {
     
     & iscc.exe "Installer\installer.iss" /DVERSION=$version
 
-    #& iscc.exe Installer\installer.iss #/DVERSION=$version
-
     # Measure installer size.
-    $publishSize = (Get-ChildItem -Path "Installer/output" -Recurse -File |
-             Measure-Object -Property Length -Sum).Sum / 1Mb
-    Write-Output ('Final installer size: {0:N2} MB' -f $publishSize)
+    $installerFile = "Installer/output/vault-explorer-installer.exe"
+    if (Test-Path $installerFile) {
+        $installerSize = (Get-Item -Path $installerFile).Length / 1Mb
+        Write-Output ('Finished installer size: {0:N2} MB' -f $installerSize)
+    } else {
+        Write-Output "Installer file not found: $installerFile"
+    }
 } finally {
     Write-Output 'Installer build process completed.'
 }

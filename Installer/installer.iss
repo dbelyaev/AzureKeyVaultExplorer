@@ -42,7 +42,7 @@ WizardStyle=modern
 SourceDir=.\..\Vault\Explorer\bin\Release
 
 ; output directory is relative to SourceDir
-OutputDir=.\..\..\..\..\installer\output
+OutputDir=.\..\..\..\..\Installer
 
 ; output installer file name
 OutputBaseFilename={#AppLowerName}-installer
