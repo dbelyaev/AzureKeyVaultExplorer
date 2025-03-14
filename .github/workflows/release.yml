@@ -24,9 +24,10 @@ jobs:
         run: ./build.ps1
 
       - name: Create GitHub release
-        run: gh release create ${{ github.ref_name }} './Installer/vault-explorer-installer.exe' --title "${{ github.ref_name }}" --draft --latest --verify-tag --notes-from-tag
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create ${{ github.ref_name }} './Installer/vault-explorer-installer.exe' --title "${{ github.ref_name }}" --draft --latest --verify-tag --notes-from-tag
+        
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
