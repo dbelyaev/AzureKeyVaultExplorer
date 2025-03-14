@@ -58,16 +58,16 @@ if ($OnlyBuild) {
 }
 
 # Build the installer
-Push-Location $projDir
 try {
     Write-Output 'Building installer...'
     Write-Output "Version to use: $version"
-    Start-Process -Wait iscc -ArgumentList "Installer\installer.iss" "/DVERSION=$version"
     
-    # # Measure installer size.
-    # $publishSize = (Get-ChildItem -Path "$projDir/Installer" -Recurse -File |
-    #          Measure-Object -Property Length -Sum).Sum / 1Mb
-    #  Write-Output ('Final installer size: {0:N2} MB' -f $publishSize)
-} finally {
-    Pop-Location
+    & iscc.exe "Installer\installer.iss" /DVERSION=$version
+
+    #& iscc.exe Installer\installer.iss #/DVERSION=$version
+
+    # Measure installer size.
+    $publishSize = (Get-ChildItem -Path "Installer/output" -Recurse -File |
+             Measure-Object -Property Length -Sum).Sum / 1Mb
+    Write-Output ('Final installer size: {0:N2} MB' -f $publishSize)
 }
