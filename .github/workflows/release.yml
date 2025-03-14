@@ -21,10 +21,11 @@ jobs:
 
       - name: Run release script
         shell: PowerShell
-        run: ./build.ps1
+        run: ./build-installer.ps1
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: installer
-          path: Installer/output/*.exe
+          path: Installer/output/vault-explorer-installer.exe
+          if-no-files-found: error

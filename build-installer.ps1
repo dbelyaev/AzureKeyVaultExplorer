@@ -1,11 +1,12 @@
-# Based on https://janjones.me/posts/clickonce-installer-build-publish-github/.
+#
+# Build application and installer script.
+#
 
 [CmdletBinding(PositionalBinding = $false)]
 param (
     [switch]$OnlyBuild = $false
 )
 
-$appName = 'VaultExplorer'
 $projDir = 'Vault\Explorer'
 
 Set-StrictMode -Version 2.0
