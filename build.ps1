@@ -62,7 +62,7 @@ Push-Location $projDir
 try {
     Write-Output 'Building installer...'
     Write-Output "Version to use: $version"
-    Start-Process -Wait -FilePath iscc.exe -ArgumentList "Installer\installer.iss", "/DVERSION=$version"
+    Start-Process -Wait iscc -ArgumentList "Installer\installer.iss" "/DVERSION=$version"
     
     # # Measure installer size.
     # $publishSize = (Get-ChildItem -Path "$projDir/Installer" -Recurse -File |
