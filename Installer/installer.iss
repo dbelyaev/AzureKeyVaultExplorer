@@ -59,7 +59,6 @@ Source: "VaultExplorer.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "VaultExplorer.exe.config"; DestDir: "{app}"; Flags: ignoreversion
 Source: "ClearClipboard.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "ClearClipboard.exe.config"; DestDir: "{app}"; Flags: ignoreversion
-Source: "Microsoft.ApplicationInsights.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "Microsoft.Azure.KeyVault.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "Microsoft.Azure.KeyVault.WebKey.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "Microsoft.Azure.Management.KeyVault.dll"; DestDir: "{app}"; Flags: ignoreversion

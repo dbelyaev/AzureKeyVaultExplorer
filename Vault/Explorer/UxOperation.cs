@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved. 
 // Licensed under the MIT License. See License.txt in the project root for license information. 
 
-using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.Azure.KeyVault;
 using System;
 using System.Linq;
@@ -63,14 +62,6 @@ namespace Microsoft.Vault.Explorer
             {
                 _cancelButton.Click -= uxButtonCancel_Click;
             }
-
-            var eventTelemetry = new EventTelemetry(_controlsToToggle[0].Name)
-            {
-                Timestamp = _startTime,
-            };
-            eventTelemetry.Metrics.Add("Duration", (DateTimeOffset.UtcNow - _startTime).TotalMilliseconds);
-            eventTelemetry.Metrics.Add("Cancelled", _cancellationTokenSource.IsCancellationRequested ? 1 : 0);
-            Telemetry.Default.TrackEvent(eventTelemetry);
 
             _cancellationTokenSource.Dispose();
             ToggleControls(true, _controlsToToggle);

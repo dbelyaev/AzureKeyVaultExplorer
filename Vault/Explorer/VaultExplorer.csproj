@@ -77,9 +77,6 @@
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.ApplicationInsights, Version=2.22.0.997, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Microsoft.ApplicationInsights.2.22.0\lib\net46\Microsoft.ApplicationInsights.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Azure.KeyVault, Version=3.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.Azure.KeyVault.3.0.5\lib\net461\Microsoft.Azure.KeyVault.dll</HintPath>
     </Reference>
@@ -300,7 +297,6 @@
     <Compile Include="SubscriptionsManagerDialog.Designer.cs">
       <DependentUpon>SubscriptionsManagerDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="Telemetry.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="UxOperation.cs" />
     <Compile Include="VaultAlias.cs" />
