@@ -7,4 +7,12 @@ $commitDateUTC = [datetime]::Parse($commitIdDate[1]).ToUniversalTime()
 $versionString = $commitDateUTC.ToString("vyyyy.MMdd.HHmm.ss")
 
 # Create a new git tag with the generated version string.
-git tag $versionString
+$existingTag = git tag --list $versionString
+if ($existingTag) {
+    Write-Output "No tag has been added."
+    Write-Output "Tag already exists: $versionString"
+} else {
+    # Create a new git tag with the generated version string.
+    git tag $versionString
+    Write-Output "Tag has been added: $versionString"
+}
