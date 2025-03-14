@@ -67,7 +67,7 @@ try {
     & iscc.exe "Installer\installer.iss" /DVERSION=$version
 
     # Measure installer size.
-    $installerFile = "Installer/output/vault-explorer-installer.exe"
+    $installerFile = "Installer\vault-explorer-installer.exe"
     if (Test-Path $installerFile) {
         $installerSize = (Get-Item -Path $installerFile).Length / 1Mb
         Write-Output ('Finished installer size: {0:N2} MB' -f $installerSize)
