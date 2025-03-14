@@ -38,11 +38,11 @@ Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
 
-; root directory
+; root source directory
 SourceDir=.\..\Vault\Explorer\bin\Release
 
-; output dir is relative to SourceDir
-OutputDir=.\..\installer\output
+; output directory is relative to SourceDir
+OutputDir=.\..\..\..\..\installer\output
 
 ; output installer file name
 OutputBaseFilename={#AppLowerName}-installer
@@ -74,18 +74,11 @@ Source: "Newtonsoft.Json.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "ScintillaNET.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "System.Buffers.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "System.Diagnostics.DiagnosticSource.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "System.IO.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "System.Memory.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "System.Net.Http.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "System.Net.Http.Formatting.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "System.Numerics.Vectors.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "System.Runtime.CompilerServices.Unsafe.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "System.Runtime.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "System.Security.Cryptography.Algorithms.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "System.Security.Cryptography.Encoding.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "System.Security.Cryptography.Primitives.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "System.Threading.Tasks.Extensions.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "System.Security.Cryptography.X509Certificates.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "System.Web.Http.dll"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]

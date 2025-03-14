@@ -39,14 +39,17 @@ if (Test-Path $outDir) {
 Push-Location $projDir
 try {
     Write-Output 'Running init.cmd'
-    Start-Process -Wait $workingDir\init.cmd
+    Start-Process -FilePath "$workingDir\init.cmd" -Wait -RedirectStandardOutput "output.log" -RedirectStandardError "error.log"
+
     Write-Output 'Restoring:'
     dotnet restore -r win-x64
+    
     Write-Output 'Publishing:'
     $msBuildVerbosityArg = '/v:m'
     if ($env:CI) {
         $msBuildVerbosityArg = ''
     }
+
     & $msBuildPath /target:publish /p:PublishProfile=ClickOnceProfile `
         /p:ApplicationVersion=$version /p:Configuration=Release `
         /p:PublishDir=$publishDir /p:PublishUrl=$publishDir `
@@ -63,12 +66,12 @@ try {
 try {
     Write-Output 'Building installer...'
     Write-Output "Version: $version"
-    Start-Process -Wait -FilePath iscc -ArgumentList "Installer\installer.iss", "/DVERSION=$version"
+    Start-Process -Wait -FilePath iscc.exe -ArgumentList "Installer\installer.iss", "/DVERSION=$version"
     
     # Measure installer size.
-    # $publishSize = (Get-ChildItem -Path "$projDir/Installer" -Recurse |
-    #         Measure-Object -Property Length -Sum).Sum / 1Mb
-    # Write-Output ('Final installer size: {0:N2} MB' -f $publishSize)
+    $publishSize = (Get-ChildItem -Path "$projDir/Installer" -Recurse -File |
+             Measure-Object -Property Length -Sum).Sum / 1Mb
+     Write-Output ('Final installer size: {0:N2} MB' -f $publishSize)
 } finally {
     Pop-Location
 }
