@@ -35,7 +35,7 @@ namespace Microsoft.Vault.Explorer
 
         public VaultAlias CurrentVaultAlias { get; private set; }
 
-        public Vault CurrentVault { get; private set; }
+        public VaultWrapper CurrentVault { get; private set; }
 
         public ListViewSecrets ListViewSecrets => uxListViewSecrets;
 
@@ -187,7 +187,12 @@ namespace Microsoft.Vault.Explorer
 
         private void SetCurrentVault()
         {
-            CurrentVault = new Vault(Utils.FullPathToJsonFile(Settings.Default.VaultsJsonFileLocation), VaultAccessTypeEnum.ReadWrite, CurrentVaultAlias.VaultNames);
+            InitializeVault();
+        }
+
+        private void InitializeVault()
+        {
+            CurrentVault = new VaultWrapper(Utils.LoadVaultsConfig(Settings.Default.VaultsJsonFileLocation), VaultAccessTypeEnum.ReadWrite, CurrentVaultAlias.VaultNames);
             // In case that subscription is chosen by the dialog, overwrite permissions taken from vaults.json
             if (CurrentVaultAlias.UserAlias!=null)
             {

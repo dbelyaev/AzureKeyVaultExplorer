@@ -15,6 +15,8 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.Vault.Library;
+using Azure.Security.KeyVault.Certificates;
 
 namespace Microsoft.Vault.Explorer
 {
@@ -134,6 +136,29 @@ namespace Microsoft.Vault.Explorer
             }
             RefreshCertificateObject(cb, _certificatePolicy, cert);
             return cb;
+        }
+
+        protected override async Task<CertificateBundle> SaveItemAsync()
+        {
+            var operation = await ((VaultWrapper)Session.CurrentVault).CreateCertificateAsync(
+                PropertyObject.Name,
+                _certificatePolicy,
+                PropertyObject.PolicyAttributes.Enabled,
+                PropertyObject.Tags);
+
+            // Wait for certificate creation to complete
+            while (operation.Status == CertificateOperationStatus.InProgress)
+            {
+                await Task.Delay(1000);
+                operation = await ((VaultWrapper)Session.CurrentVault).GetCertificateAsync(PropertyObject.Name);
+            }
+
+            if (operation.Status != CertificateOperationStatus.Completed)
+            {
+                throw new InvalidOperationException($"Certificate creation failed with status: {operation.Status}");
+            }
+
+            return operation.ToCertificateBundle();
         }
     }
 }

@@ -17,6 +17,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Vault.Library;
+using Azure.Security.KeyVault.Secrets;
 
 namespace Microsoft.Vault.Explorer
 {
@@ -383,6 +384,18 @@ namespace Microsoft.Vault.Explorer
         private void uxLinkLabelViewCertificate_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             X509Certificate2UI.DisplayCertificate(_certificateObj.Certificate, Handle);
+        }
+
+        protected override async Task<SecretBundle> SaveItemAsync()
+        {
+            var secret = await ((VaultWrapper)Session.CurrentVault).SetSecretAsync(
+                PropertyObject.Name,
+                uxTextBoxValue.Text,
+                PropertyObject.Tags,
+                PropertyObject.ContentType,
+                PropertyObject.Attributes);
+
+            return secret;
         }
     }
 }

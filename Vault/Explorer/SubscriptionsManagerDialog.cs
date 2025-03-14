@@ -135,7 +135,11 @@ namespace Microsoft.Vault.Explorer
                 var vault = await _currentKeyVaultMgmtClient.Vaults.GetAsync(v.GroupName, v.Name);
                 uxPropertyGridVault.SelectedObject = new PropertyObjectVault(s.Subscription, v.GroupName, vault);
                 uxButtonOK.Enabled = true;
-                CurrentVaultAlias = new VaultAlias(v.Name, new string[] { v.Name }, new string[] { "Custom" }) { DomainHint = _currentAccountItem.DomainHint, UserAlias = _currentAccountItem.UserAlias};
+                CurrentVaultAlias = new VaultAlias(v.Name, new string[] { v.Name }, new string[] { "Custom" }) 
+                { 
+                    DomainHint = _currentAccountItem.DomainHint, 
+                    UserAlias = _currentAccountItem.UserAlias
+                };
             }
         }
 
