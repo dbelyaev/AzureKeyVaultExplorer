@@ -49,6 +49,7 @@ try {
         $msBuildVerbosityArg
 } finally {
     Pop-Location
+    Write-Output 'Application build process completed.'
 }
 
 
@@ -70,4 +71,6 @@ try {
     $publishSize = (Get-ChildItem -Path "Installer/output" -Recurse -File |
              Measure-Object -Property Length -Sum).Sum / 1Mb
     Write-Output ('Final installer size: {0:N2} MB' -f $publishSize)
+} finally {
+    Write-Output 'Installer build process completed.'
 }
